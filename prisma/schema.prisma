@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+model Organization {
+  id               Int       @id @default(autoincrement())
+  name             String
+  subscription_status String?   @default("active")
+  created_at       DateTime  @default(now())
+  users            User[]
+  tasks            Task[]
+}
+model User {
+  id              Int       @id @default(autoincrement())
+  org_id          Int
+  organization    Organization @relation(fields: [org_id], references: [id])
+  email           String    @unique
+  password_hash   String
+  role            String    @default("User")
+  first_name      String?
+  last_name       String?
+  tasks_created   Task[]    @relation("CreatedTasks")
+  tasks_assigned  Task[]    @relation("AssignedTasks")
+  comments        Comment[]
+}
+model Task {
+  id              Int       @id @default(autoincrement())
+  org_id          Int
+  organization    Organization @relation(fields: [org_id], references: [id])
+  title           String
+  description     String?
+  status          String    @default("To Do")
+  assigned_to     Int?
+  assignee        User?     @relation("AssignedTasks", fields: [assigned_to], references: [id])
+  created_by      Int
+  creator         User      @relation("CreatedTasks", fields: [created_by], references: [id])
+  due_date        DateTime?
+  comments        Comment[]
+}
+model Comment {
+  id              Int       @id @default(autoincrement())
+  task_id         Int
+  task            Task      @relation(fields: [task_id], references: [id])
+  user_id         Int
+  user            User      @relation(fields: [user_id], references: [id])
+  content         String
+  created_at      DateTime  @default(now())
+}
