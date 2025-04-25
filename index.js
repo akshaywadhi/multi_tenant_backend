@@ -3,9 +3,12 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const prisma = require('./prisma');
-const authRoutes = require('./routes/auth');
-const orgRoutes = require('./routes/organization');
+const authRoutes = require('./routes/adminRouter');
 const taskRoutes = require('./routes/tasks');
+const dotenv = require('dotenv')
+const userRoute = require('./routes/userRouter')
+
+dotenv.config()
 
 const app = express();
 
@@ -21,9 +24,10 @@ app.use(
 );
 
 
-app.use('/api/auth', authRoutes);
-app.use('/api/org', orgRoutes);
-app.use('/api/tasks', taskRoutes);
+app.use('/', authRoutes);
+app.use('/', taskRoutes);
+app.use('/', userRoute)
+
 
 
 app.use((err, req, res, next) => {
