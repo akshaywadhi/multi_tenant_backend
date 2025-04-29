@@ -15,7 +15,7 @@ const app = express();
 
 app.use(cookieParser());
 app.use(helmet());
-app.use(cors({ origin: 'https://multi-tenant-frontend.vercel.app/', credentials : true}));
+app.use(cors({ origin: 'https://multi-tenant-frontend.vercel.app', credentials : true}));
 app.use(express.json());
 app.use(
   rateLimit({
