@@ -1,10 +1,11 @@
 const express = require("express");
 const { task, fetchTasks, deleteTask, updateTask } = require("../controller/taskController");
+const upload = require('../middleware/upload')
 
 const router = express.Router();
 
 
-router.post("/tasks", 
+router.post("/tasks", upload.single('file'),
   task
 );
 

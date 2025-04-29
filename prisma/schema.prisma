@@ -28,8 +28,16 @@ model User {
   first_name    String?
   last_name     String?
   Task          Task[]
+  Comment       Comment[]
 
   @@unique([email, org_id])
+}
+
+model Comment {
+  id      Int    @id @default(autoincrement())
+  content String
+  userId  Int?
+  user    User?  @relation(fields: [userId], references: [id])
 }
 
 model Task {
@@ -38,6 +46,7 @@ model Task {
   organization Organization @relation(fields: [org_id], references: [id])
   title        String
   description  String?
+  fileUrl      String
   status       String       @default("To Do")
   assigned_to  Int?
   due_date     DateTime?

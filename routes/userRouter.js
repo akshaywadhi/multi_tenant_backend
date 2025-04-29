@@ -1,10 +1,11 @@
 const express = require('express')
-const auth = require('../middleware/userAuth')
-const { fetchTask } = require('../controller/userController')
+const authenticateUser = require('../middleware/userAuth')
+const { fetchTask, comment } = require('../controller/userController')
 
 
 const router = express.Router()
 
-router.get('/userTask',auth,  fetchTask)
+router.get('/userTask',authenticateUser,  fetchTask)
+router.post('/comment', authenticateUser, comment)
 
 module.exports = router

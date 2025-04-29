@@ -12,9 +12,12 @@ const signup = async (req, res) => {
     });
 
     if (!organization) {
-      return res.status(400).json({ error: 'Organization not found' });
+      return res.status(400).json({ error: 'Organization not found, If Not Found Create One Using Admin Panel' });
     }
 
+    if (password.length < 6){
+      return res.status(400).json({ error: 'Password Not Be Less Than 6 Characters' });
+    }
   
     const existingUser = await prisma.user.findUnique({
       where: {
@@ -63,7 +66,7 @@ const login = async (req, res) => {
     });
 
     if (!org) {
-      return res.status(404).json({ error: 'Organization not found' });
+      return res.status(404).json({ error: 'Organization not found,  If Not Found Create One Using Admin Panel' });
     }
 
     const user = await prisma.user.findUnique({
@@ -82,7 +85,7 @@ const login = async (req, res) => {
 
     const isValid = await bcrypt.compare(password, user.password_hash);
     if (!isValid) {
-      return res.status(401).json({ error: 'Invalid password' });
+      return res.status(401).json({ error: 'Invalid Credentials' });
     }
 
 
@@ -90,10 +93,11 @@ const login = async (req, res) => {
       userId: user.id,
       orgId: org.id,
       email: user.email,
+      first_name : user.first_name
     };
 
     
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '30d' });
 
     return res.status(200).json({
       message: 'Login successful',
@@ -111,22 +115,44 @@ const fetchTask = async (req, res) => {
   const userId = req.user.userId;
 
   console.log(userId)
-  console.log(req.user)
+
 
   try {
     const tasks = await prisma.task.findMany({
       where: {  assigned_to : userId },
       include: {
-
         assignee: true,
       }
     });
 
-    console.log(tasks)
+    res.json({tasks})
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
   }
 }
 
-  module.exports = {signup, login, fetchTask}
+const comment = async (req, res) => {
+  try {
+    const { content } = req.body
+    if (!content) {
+      return res.status(400).json({ message: 'Content is required' })
+    }
+
+
+    const userId = req.user.userId  
+
+    const newComment = await prisma.comment.create({
+      data: {
+        content,
+        userId,
+      }
+    })
+
+    res.status(201).json({ message: 'Comment added successfully', comment: newComment })
+  } catch (error) {
+    console.error('Error adding comment:', error)
+    res.status(500).json({ message: 'Internal Server Error' })
+  }}
+
+  module.exports = {signup, login, fetchTask, comment}

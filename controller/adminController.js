@@ -93,4 +93,34 @@ const deleteUser = async (req, res) => {
 }
 
 
-module.exports = {org,createOrg, fetchUser, deleteUser}
+const fetchComment = async (req, res) => {
+
+
+  try {
+
+    const comments = await prisma.comment.findMany({
+      include: {
+        user: {
+          select: {
+            first_name: true,
+            organization : {
+              select : {
+                name : true
+              }
+            }
+          }
+        },
+       
+      }
+    });
+    res.json({comments})
+    console.log(comments)
+    
+  } catch (error) {
+    return res.status(500).json({ error: 'Internal server error' });
+    console.log(error)
+  }
+}
+
+
+module.exports = {org,createOrg, fetchUser, deleteUser, fetchComment}

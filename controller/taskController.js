@@ -1,4 +1,5 @@
 const prisma = require('../prisma')
+const cloudinary = require('../utils/cloudinary')
 
 
 const task = async (req, res) => {
@@ -16,23 +17,45 @@ const task = async (req, res) => {
  
     const user = await prisma.user.findFirst({
       where: {
-        id: assigned_to,
+        id: Number(assigned_to),
       },
     });
 
     if (!user) {
       return res.status(400).json({ error: 'Assigned user not found' });
     }
+    let fileUrl = null;
 
-  
+    if (req.file) {
+   
+      if (req.file.mimetype !== 'application/pdf') {
+        return res.status(400).json({ error: 'Only PDF files are allowed' });
+      }
+    
+   
+      const result = await new Promise((resolve, reject) => {
+        const upload = cloudinary.uploader.upload_stream(
+          { resource_type: 'auto' },
+          (error, result) => {
+            if (error) return reject(error);
+            resolve(result);
+          }
+        );
+        upload.end(req.file.buffer);
+      });
+    
+      fileUrl = result.secure_url;
+    }
+    
     const task = await prisma.task.create({
       data: {
         title,
         description,
         due_date: new Date(due_date),
         status: 'To Do',
-        assigned_to,
-        org_id,   
+        fileUrl,
+        assigned_to :  Number(assigned_to),
+        org_id :  Number(org_id),   
       },
     });
     

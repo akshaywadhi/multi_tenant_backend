@@ -7,14 +7,15 @@ const authRoutes = require('./routes/adminRouter');
 const taskRoutes = require('./routes/tasks');
 const dotenv = require('dotenv')
 const userRoute = require('./routes/userRouter')
+const cookieParser = require('cookie-parser');
 
 dotenv.config()
 
 const app = express();
 
-
+app.use(cookieParser());
 app.use(helmet());
-app.use(cors({ origin: 'http://localhost:5173'}));
+app.use(cors({ origin: 'http://localhost:5173', credentials : true}));
 app.use(express.json());
 app.use(
   rateLimit({
