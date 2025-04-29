@@ -64,6 +64,7 @@ const fetchUser = async (req, res) => {
 
 const deleteUser = async (req, res) => {
   const { id } = req.params;
+  console.log(id)
 
   try {
 
